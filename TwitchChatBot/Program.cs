@@ -2,7 +2,7 @@
 
 namespace TwitchChatBot{
 	public static class Program {
-		static string channel = "zezert", preCom = "", postCom = "?", admin = "zezert";
+		static string channel = "forsenlol", preCom = "", postCom = "?", admin = "zezert";
 		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:j0zyvyvajdg1rqrfl8b3qntyfxdhym");
 
 		static void Main(string[] args) {
@@ -10,8 +10,6 @@ namespace TwitchChatBot{
 			string lastUse = DateTime.Now.ToString("hh:mm:ss:fff");
 			string lastRead = DateTime.Now.ToString("hh:mm:ss:fff");
 			string ifNotNullSend = "";
-			int commandsUsed = 0;
-			int messagesRead = 0;
 
 			irc.joinRoom(channel);
 			pickMeChat.helloMessage(irc, "That turns me on gachiGASM");
@@ -70,10 +68,10 @@ namespace TwitchChatBot{
 			pickMeChat.addAnswer(false, AnswerPicker.CONTAINS, "im not fucking lying !", "YES YOU ARE BabyRage", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_ENDS, "?--?", "🤔 Hum yeah I'm not sure, I think we need more samples. 🤔");
 
-			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "randomize those words", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", SpecialAnswer.RANDOMIZE_WORD);
-			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "randomize this", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", SpecialAnswer.RANDOMIZE_CHAR);
-			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is dad", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", SpecialAnswer.WHEREISDAD);
-			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is mom", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", SpecialAnswer.WHEREISMOM);
+			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "randomize those words", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.RANDOMIZE_WORD);
+			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "randomize this", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.RANDOMIZE_CHAR);
+			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is dad", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISDAD);
+			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is mom", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISMOM);
 			//Console.WriteLine("Triggers are : " + pickMeChat.getAnswers());
 
 			string checkString = "";
@@ -93,13 +91,12 @@ namespace TwitchChatBot{
 							lastRead = DateTime.Now.ToString("hh:mm:ss:fff");
 
 							if(ifNotNullSend != null) {
-								commandsUsed++;
 								lastUse = lastRead;
 								irc.sendChatMessage(ifNotNullSend);
 							}
 							//Console.WriteLine(ifNotNullSend);
 							Console.SetCursorPosition(0, Console.CursorTop); //move cursor
-							Console.Write("Messages read : {0}\t Messages answered : {1}\tLast answer : {2}\tLast read : {3}", (messagesRead++), commandsUsed, lastUse, lastRead);
+							Console.Write("Last read : {0}\t Messages read : {1}\t Messages answered : {1}\tLast answer : {3}", lastRead, pickMeChat.MessageRead, pickMeChat.MessageSent, lastUse);
 						}
 					}
 				}

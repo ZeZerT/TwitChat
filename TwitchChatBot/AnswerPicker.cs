@@ -21,7 +21,12 @@ namespace TwitchChatBot {
 
 		public const Boolean WITH_ADMIN_VERSION     = true;
 		public const Boolean WITHOUT_ADMIN_VERSION  = false;
-		
+
+		// Knowing the total of messages sent and read. Is also used to counter the 30s cooldown if the bot sends another message.
+		private static String lastMessage;
+		private long messageSent;
+		private long messageRead;
+
 		private string preCom;
 		private string postCom;
 		private string admin;
@@ -31,16 +36,16 @@ namespace TwitchChatBot {
 		private DateTime lastUse;
 
 		public AnswerPicker(string precom, string postcom, string admin) {
+			this.answers = new Dictionary<string, Answer>();
+			this.noErrorWhileAdding = true;
+			this.lastUse = DateTime.Now;
 			this.preCom  = precom;
 			this.postCom = postcom;
 			this.admin   = admin;
-			this.answers = new Dictionary<string, Answer>();
-			this.lastUse = DateTime.Now;
 			this.saidHello = false;
-			this.noErrorWhileAdding = true;
 		}
 
-		public void addAnswer(Boolean usesMessage, int type, string trigger, string textPleb, int withCaller = Answer.NONE_HAVE_CALLER, Boolean ignorePrePostCom =WITH_PRE_POST_COM, Boolean admin =WITHOUT_ADMIN_VERSION, string textAdmin ="", int special = SpecialAnswer.NONE) {
+		public void addAnswer(Boolean usesMessage, int type, string trigger, string textPleb, int withCaller = Answer.NONE_HAVE_CALLER, Boolean ignorePrePostCom =WITH_PRE_POST_COM, Boolean admin =WITHOUT_ADMIN_VERSION, string textAdmin ="", int special = Answer.NONE) {
 			Boolean keyFound = false;
 
 			// Searching for the key (the trigger), hoping we don't find it.
@@ -50,9 +55,7 @@ namespace TwitchChatBot {
 
 			// If it wasn't found, we can add the trigger and it's answer
 			if(!keyFound) {
-				// If the answer "uses the message", it's a special answer. Else, it's a normal one.
-				if(usesMessage) answers.Add(trigger, new SpecialAnswer(admin, ignorePrePostCom, special));
-				else answers.Add(trigger, new Answer(type, textPleb, withCaller, admin, ignorePrePostCom, textAdmin));
+				answers.Add(trigger, new Answer(type, textPleb, withCaller, admin, ignorePrePostCom, textAdmin, special));
 				//Console.WriteLine("Added : {0}, {1}, {2}, {3}, {4}, {5}, {6}", type, trigger, text, withCaller, ignorePrePostCom, admin, textAdmin);
 			}else {
 				// An error occured, we log it and block the answer retrieval. Adding to the answers may be blocked if we check all but the first addAnswer call by the blocker.
@@ -72,7 +75,7 @@ namespace TwitchChatBot {
 				string message = text.Substring(text.IndexOf(" :") + 2, text.Length - text.IndexOf(" :") - 2);
 				string caller = getCaller(text);
 				string trigger = getTrigger(message);
-
+				incrementRead();
 				// Debug
 				//Console.WriteLine("message : \"{0}\"" + "trigger : \"{1}\"" + "caller : \"{2}\"" + " null or empty? {3}" , message, trigger, caller, (caller != null && trigger != null));
 
@@ -83,56 +86,48 @@ namespace TwitchChatBot {
 
 						// We found one of our triggers in the message, but does it really match out expections ? (is it relevant)
 						Boolean relevant = false;
-
-						// If the specified answer is a special one
-						if(answers[trigger].GetType() == typeof(SpecialAnswer)) {
-							SpecialAnswer response = (SpecialAnswer) answers[trigger];
-							//Check if we are interested in this message
-							relevant = response.IgnorePrePostCom 
-								? (message.StartsWith(trigger) || message.StartsWith(trigger))
-								: (message.StartsWith(preCom + trigger + postCom) || message.StartsWith(preCom + trigger + " " + postCom));
-							response.fillAnswers(message, caller, (caller==admin));
-							return tryToSend(relevant, response, caller);
-
-							// Or if it's a normal one (answers[trigger].GetType() == typeof(Answer))
-						} else {
-							Answer response = answers[trigger];
-							// Array containing the different parts of a trigger, if there may be several.
-							string[] triggers = null;
-							// Self-explanatory , we check if we are interested in this message
-							switch(response.Type) {
-								case STARTS_WITH:
-									relevant = response.IgnorePrePostCom
-										? (message.StartsWith(trigger) || message.StartsWith(trigger))
-										: (message.StartsWith(preCom + trigger + postCom) || message.StartsWith(preCom + trigger + " " + postCom));
-									break;
-								case CONTAINS:
-									relevant = message.Contains(trigger);
-									break;
-								case ENDS_WITH:
-									relevant = message.EndsWith(trigger);
-									break;
-								case STARTS_CONTAINS:
-									triggers = trigger.Split("--".ToCharArray());
-									relevant = (message.StartsWith(triggers[0]) && message.Contains(triggers[1]));
-									break;
-								case CONTAINS_ENDS:
-									triggers = trigger.Split("--".ToCharArray());
-									relevant = (message.Contains(triggers[0]) && message.EndsWith(triggers[1]));
-									break;
-								case STARTS_ENDS:
-									triggers = trigger.Split("--".ToCharArray());
-									relevant = (message.StartsWith(triggers[0]) && message.EndsWith(triggers[1]));
-									break;
-								case STARTS_CONTAINS_ENDS:
-									triggers = trigger.Split("--".ToCharArray());
-									relevant = (message.StartsWith(triggers[0]) &&message.Contains(triggers[1]) && message.EndsWith(triggers[2]));
-									break;
-								default: return null;
-							}
-
-							return tryToSend(relevant, response, caller);
+						
+						Answer response = answers[trigger];
+						// Array containing the different parts of a trigger, if there may be several.
+						string[] triggers = null;
+						// Self-explanatory , we check if we are interested in this message
+						switch(response.Type) {
+							case SPECIAL:
+							case STARTS_WITH:
+								relevant = response.IgnorePrePostCom
+									? (message.StartsWith(trigger) || message.StartsWith(trigger))
+									: (message.StartsWith(preCom + trigger + postCom) || message.StartsWith(preCom + trigger + " " + postCom));
+								break;
+							case CONTAINS:
+								relevant = message.Contains(trigger);
+								break;
+							case ENDS_WITH:
+								relevant = message.EndsWith(trigger);
+								break;
+							case STARTS_CONTAINS:
+								triggers = trigger.Split("--".ToCharArray());
+								relevant = (message.StartsWith(triggers[0]) && message.Contains(triggers[1]));
+								break;
+							case CONTAINS_ENDS:
+								triggers = trigger.Split("--".ToCharArray());
+								relevant = (message.Contains(triggers[0]) && message.EndsWith(triggers[1]));
+								break;
+							case STARTS_ENDS:
+								triggers = trigger.Split("--".ToCharArray());
+								relevant = (message.StartsWith(triggers[0]) && message.EndsWith(triggers[1]));
+								break;
+							case STARTS_CONTAINS_ENDS:
+								triggers = trigger.Split("--".ToCharArray());
+								relevant = (message.StartsWith(triggers[0]) &&message.Contains(triggers[1]) && message.EndsWith(triggers[2]));
+								break;
+							default: return null;
 						}
+
+						if(response.isSpecial()) response.fillAnswers(message, caller, (caller==admin));
+
+						Boolean force = lastMessage != trigger; 
+						lastMessage = trigger;
+						return tryToSend(relevant, response, caller, force);
 					}
 					return null;
 				}
@@ -141,17 +136,20 @@ namespace TwitchChatBot {
 			return null;
 		}
 
-		private string tryToSend(Boolean relevant, Answer response, string caller) {
+		private string tryToSend(Boolean relevant, Answer response, string caller, Boolean force) {
 			// If so, then we check if we can send a message (30s cooldown for same messages, 1.2s for different ones (values given by Twitch chat rules))
 			if(relevant && response.canResend() && DateTime.Now.Subtract(lastUse).TotalSeconds > 2) {
 				// Set the "last used" variable to the current moment, print the answer and return it.
 				lastUse = DateTime.Now;
 				string answer = response.getAnswer(caller, (caller==admin));
+				incrementSent();
+
+				// Allows to send the same message before the 30 required seconds if a different message was sent inbetween.
+				if(force)answers[lastMessage].forceResend(); 
 
 				Console.ForegroundColor = ConsoleColor.White; Console.Write("\n[" + DateTime.Now.ToString("hh:mm:ss:fff") + "] " + caller + " > ");
 				Console.ForegroundColor = ConsoleColor.DarkMagenta; Console.WriteLine("Answered " + answer);
 				Console.ForegroundColor = ConsoleColor.Gray;
-
 				return answer;
 			}
 			return null;
@@ -193,8 +191,34 @@ namespace TwitchChatBot {
 		}
 
 		// Self-explanatory, but never used.
-		public void removeAnswers() {
+		private void removeAnswers() {
 			answers.Clear();
+		}
+
+		// Self-explanatory, made for clarity.
+		private void incrementRead() {
+			MessageRead++;
+		}
+
+		// Self-explanatory, made for clarity.
+		private void incrementSent() {
+			MessageRead++;
+		}
+
+		// get & set
+		internal static string LastMessage {
+			get { return lastMessage; }
+			set { lastMessage=value; }
+		}
+
+		public Int64 MessageSent {
+			get { return messageSent; }
+			set { this.messageSent=value; }
+		}
+
+		public Int64 MessageRead {
+			get { return messageRead; }
+			set { this.messageRead=value; }
 		}
 	}
 }

@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace TwitchChatBot {
 	class Answer {
 		private int type;
 		private int count;
+		private int special;
 		private int withCaller;
 		private string textAdmin;
 		private string textPleb;
-		private Boolean ignorePrePostCom;
 		private Boolean admin;
+		private Boolean force;
+		private Boolean ignorePrePostCom;
 
 		private List<string> last5;
 		private DateTime usedOn;
@@ -23,17 +26,24 @@ namespace TwitchChatBot {
 		public const int BOTH_STARTS_WITH_CALLER    = 25;
 		public const int BOTH_ENDS_WITH_CALLER      = 26;
 
+		public const int NONE						= 30;
+		public const int WHEREISMOM					= 31;
+		public const int WHEREISDAD					= 32;
+		public const int RANDOMIZE_CHAR				= 33;
+		public const int RANDOMIZE_WORD				= 34;
+
 		public Answer() {
 			exists = false;
 		}
 		
-		public Answer(int type, string text, int withCaller, Boolean admin, Boolean ignorePrePostCom, string textAdmin) {
+		public Answer(int type, string text, int withCaller, Boolean admin, Boolean ignorePrePostCom, string textAdmin, int special) {
 			last5 = new List<string>();
 			exists = true;
 
 			Count = 0;
 			Type = type;
 			Admin = admin;
+			Special = special;
 			TextPleb = text;
 			WithCaller = withCaller;
 			IgnorePrePostCom = ignorePrePostCom;
@@ -71,6 +81,30 @@ namespace TwitchChatBot {
 			}
 		}
 
+		public void fillAnswers(string message, string caller, Boolean admin) {
+			switch(special) {
+				case WHEREISMOM:
+					TextAdmin = Whereismom();
+					TextPleb = Whereismom();
+					break;
+				case WHEREISDAD:
+					TextAdmin = Whereisdad();
+					TextPleb = Whereisdad();
+					break;
+				case RANDOMIZE_CHAR:
+					TextAdmin = ShuffleChar(message);
+					TextPleb = ShuffleChar(message);
+					break;
+				case RANDOMIZE_WORD:
+					TextAdmin = ShuffleWord(message);
+					TextPleb = ShuffleWord(message);
+					break;
+				default:
+					TextAdmin = TextPleb = null;
+					break;
+			}
+		}
+
 		public string getLastCaller() {
 			List<string> names = last5.GetRange(Count -1, 1);
 			return String.Join(", ", names.ToArray());
@@ -82,9 +116,51 @@ namespace TwitchChatBot {
 			return String.Join(", ", names.ToArray());
 		}
 
-		public Boolean canResend() {
-			return DateTime.Now.Subtract(UsedOn).TotalSeconds > 30;
+		public void forceResend() {
+			force = true;
 		}
+		public Boolean canResend() {
+			Boolean returnMe = force || DateTime.Now.Subtract(UsedOn).TotalSeconds > 30;
+			force = false;
+			return returnMe;
+		}
+
+		public Boolean isSpecial() {
+			return Special != NONE;
+		}
+
+		private string Whereismom() {
+			return new string[] {
+				"She is right here GivePLZ https://www.twitch.tv/eloise_ailv TakeNRG",
+				"Who ? forsenE", 
+				"!whereismom forsenPuke2",
+				"She is screaming in another stream for whatever reason forsenLewd"
+			}[new Random().Next(0, 4)];
+		}
+
+		private string Whereisdad() {
+			return new string[] {
+				"Nani killed him BibleThump",
+				"Dad went to get a pack of cigarettes, he'll soon be back... FeelsBadMan",
+				"He and Nani are making a pleb right now forsenE",
+				"He is now the ghost of the volume control. RIP SMSkull",
+				"!whereisdad forsenPuke",
+				"He's live FailFish If you don't see him, refresh."
+			}[new Random().Next(0, 6)];
+		}
+
+		private string ShuffleChar(string unshuffled) {
+			Random x = new Random();
+			unshuffled = unshuffled.Substring(unshuffled.IndexOf("?")+1, unshuffled.Length - unshuffled.IndexOf("?")-1);
+			return new string(unshuffled.OrderBy(r => x.Next()).ToArray());
+		}
+
+		private string ShuffleWord(string unshuffled) {
+			Random x = new Random();
+			unshuffled = unshuffled.Substring(unshuffled.IndexOf("?")+1, unshuffled.Length - unshuffled.IndexOf("?")-1);
+			return String.Join(" ", unshuffled.Split(' ').OrderBy(r => x.Next()).ToArray());
+		}
+
 
 		public Int32 Type {
 			get { return type; }
@@ -94,6 +170,11 @@ namespace TwitchChatBot {
 		public Int32 WithCaller {
 			get { return withCaller; }
 			set { this.withCaller=value; }
+		}
+
+		public Int32 Special {
+			get { return special; }
+			set { this.special=value; }
 		}
 
 		public Int32 Count {
@@ -126,4 +207,5 @@ namespace TwitchChatBot {
 			set { this.usedOn=value; }
 		}
 	}
+	
 }
