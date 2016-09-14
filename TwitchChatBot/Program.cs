@@ -60,6 +60,9 @@ namespace TwitchChatBot{
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "memer of the day", "http://i.imgur.com/dbYwyIS.png PogChamp");
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "billy", "Some religions call him \"God\", for others it's \"Allah\", for me it's just \"Billy\".");
 			
+
+
+
 			// Special commands
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "!offlinechat", "/me JAVLA FITTA KUK HELVETE", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "!enation", "/me DO NATION 👌💰", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
