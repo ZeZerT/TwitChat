@@ -75,8 +75,9 @@ namespace TwitchChatBot{
 			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "randomize this", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.RANDOMIZE_CHAR);
 			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is dad", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISDAD);
 			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is mom", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISMOM);
+			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "thought for the day", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.CODEX);
 			//Console.WriteLine("Triggers are : " + pickMeChat.getAnswers());
-	
+
 			// End the bot
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "Death is the only answer.", "Duty prevails.", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, AnswerPicker.WITH_ADMIN_VERSION, "Only in death does duty end.");
 			
@@ -86,7 +87,7 @@ namespace TwitchChatBot{
 			if(pickMeChat.canWeGo()) {
 				while(flagContinue) {
 					checkString = irc.readMessage();
-					//Console.WriteLine("\""+checkString+"\"");
+					//Console.WriteLine("\nCheck this string : \""+checkString+"\"");
 					if(checkString.Equals("PING: tmi.twitch.tv") || checkString.Equals("PING :tmi.twitch.tv")) {
 						irc.refresh(false);
 						skipThem = 4;
@@ -95,7 +96,6 @@ namespace TwitchChatBot{
 						else {
 							ifNotNullSend = pickMeChat.pickAnswer(checkString);
 							lastRead = DateTime.Now.ToString("hh:mm:ss:fff");
-
 							if(ifNotNullSend != null) {
 								lastUse = lastRead;
 								irc.sendChatMessage(ifNotNullSend);

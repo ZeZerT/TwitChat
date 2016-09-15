@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 
 namespace TwitchChatBot {
 	class Answer {
@@ -31,6 +32,7 @@ namespace TwitchChatBot {
 		public const int WHEREISDAD					= 32;
 		public const int RANDOMIZE_CHAR				= 33;
 		public const int RANDOMIZE_WORD				= 34;
+		public const int CODEX						= 35;
 
 		public Answer() {
 			exists = false;
@@ -84,21 +86,21 @@ namespace TwitchChatBot {
 		public void fillAnswers(string message, string caller, Boolean admin) {
 			switch(special) {
 				case WHEREISMOM:
-					TextAdmin = Whereismom();
-					TextPleb = Whereismom();
+					TextAdmin = TextPleb = Whereismom();
 					break;
 				case WHEREISDAD:
-					TextAdmin = Whereisdad();
-					TextPleb = Whereisdad();
+					TextAdmin = TextPleb = Whereisdad();
 					break;
 				case RANDOMIZE_CHAR:
-					TextAdmin = ShuffleChar(message);
-					TextPleb = ShuffleChar(message);
+					TextAdmin = TextPleb = ShuffleChar(message);
 					break;
 				case RANDOMIZE_WORD:
-					TextAdmin = ShuffleWord(message);
-					TextPleb = ShuffleWord(message);
+					TextAdmin = TextPleb = ShuffleWord(message);
 					break;
+				case CODEX:
+					TextAdmin = TextPleb = readCodex(message);
+					break;
+					
 				default:
 					TextAdmin = TextPleb = null;
 					break;
@@ -120,9 +122,12 @@ namespace TwitchChatBot {
 			force = true;
 		}
 		public Boolean canResend() {
-			Boolean returnMe = force || DateTime.Now.Subtract(UsedOn).TotalSeconds > 30;
-			force = false;
-			return returnMe;
+			if(Special == NONE) {
+				Boolean returnMe = force || DateTime.Now.Subtract(UsedOn).TotalSeconds > 30;
+				force = false;
+				return returnMe;
+			}
+			return true;
 		}
 
 		public Boolean isSpecial() {
@@ -161,6 +166,33 @@ namespace TwitchChatBot {
 			return String.Join(" ", unshuffled.Split(' ').OrderBy(r => x.Next()).ToArray());
 		}
 
+		private string readCodex(string startsWith =null) {
+			Dictionary<int, string> answers = new Dictionary<int, string>();
+			int indice = 0;
+			try {
+				// "using" allows to dispose automatically of the StreamReader when it ends.
+				using(StreamReader sr = new StreamReader("Codex.txt")) {
+					if(startsWith.Contains("(") && startsWith.Contains(")")) startsWith = startsWith.ToUpper().Substring(startsWith.IndexOf("(")+1, startsWith.Length - startsWith.IndexOf(")"));
+					if(startsWith.Length==1 && startsWith.Any(x => char.IsLetter(x))) {
+						while(sr.Peek() >= 0) {
+							String line = sr.ReadLine();
+							if(line.StartsWith(startsWith)) answers.Add(indice++, line);
+						}
+					} else {
+						while(sr.Peek() >= 0) {
+							answers.Add(indice++, sr.ReadLine());
+						}
+					}
+				}
+				int y = new Random().Next(0, indice);
+				Console.Write("indice:"+y+"\ttext:"+answers[y]);
+				return answers[y];
+			} catch(Exception e) {
+				Console.WriteLine("The file could not be read:");
+				Console.WriteLine(e.Message);
+				return "I had a problem, but my creator ZeZerT isn't responsible at all for he is mighty and skilled MrDestructoid";
+			}
+		}
 
 		public Int32 Type {
 			get { return type; }

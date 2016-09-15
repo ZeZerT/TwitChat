@@ -72,9 +72,10 @@ namespace TwitchChatBot {
 			// The text is the complete message, including headers as who sent the message, to which channel, and of course the message itself.
 			if(text != null) {
 				// The message is then retrieved, as well as the caller and an enventual trigger that would have been detected. 
-				string message = text.Substring(text.IndexOf(" :") + 2, text.Length - text.IndexOf(" :") - 2);
-				string caller = getCaller(text);
+				
+				string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2);
 				string trigger = getTrigger(message);
+				string caller = getCaller(text);
 				incrementRead();
 				// Debug
 				//Console.WriteLine("message : \"{0}\"" + "trigger : \"{1}\"" + "caller : \"{2}\"" + " null or empty? {3}" , message, trigger, caller, (caller != null && trigger != null));
@@ -172,14 +173,6 @@ namespace TwitchChatBot {
 		// The first message the bot says when he's turned on. Because he is a polite and nice guy. He only says that once.
 		public void helloMessage(IrcClient irc, string message) {
 			if(!saidHello) {
-				irc.sendChatMessage(message);
-				saidHello = !saidHello;
-			}
-		}
-
-		// As polite as polite can be, one who say hi must say goodbye.
-		public void goodbyeMessage(IrcClient irc, string message) {
-			if(saidHello) {
 				irc.sendChatMessage(message);
 				saidHello = !saidHello;
 			}
