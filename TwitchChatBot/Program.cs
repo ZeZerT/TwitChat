@@ -80,7 +80,7 @@ namespace TwitchChatBot{
 			// End the bot
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "Death is the only answer.", "Duty prevails.", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, AnswerPicker.WITH_ADMIN_VERSION, "Only in death does duty end.");
 
-
+			// Kappa Keepo
 			string checkString = "";
 			int skipThem = 9;
 
