@@ -10,6 +10,7 @@ namespace TwitchChatBot{
 			string lastUse = DateTime.Now.ToString("hh:mm:ss:fff");
 			string lastRead = DateTime.Now.ToString("hh:mm:ss:fff");
 			string ifNotNullSend = "";
+			Boolean flagContinue = true;
 
 			irc.joinRoom(channel);
 			pickMeChat.helloMessage(irc, "That turns me on gachiGASM");
@@ -59,11 +60,9 @@ namespace TwitchChatBot{
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "entertained", "ARE YOU NOT ENTERTAINED ? SwiftRage 🗡");
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "memer of the day", "http://i.imgur.com/dbYwyIS.png PogChamp");
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "billy", "Some religions call him \"God\", for others it's \"Allah\", for me it's just \"Billy\".");
+			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "savjz", "I save my jizz for Savjz forsenLewd");
 			
-
-
-
-			// Special commands
+			// Irregular commands
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "!offlinechat", "/me JAVLA FITTA KUK HELVETE", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "!enation", "/me DO NATION 👌💰", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "!genji", "There is no way I add that weeb overwatch emote forsenSWA", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
@@ -71,17 +70,22 @@ namespace TwitchChatBot{
 			pickMeChat.addAnswer(false, AnswerPicker.CONTAINS, "im not fucking lying !", "YES YOU ARE BabyRage", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(false, AnswerPicker.STARTS_ENDS, "?--?", "🤔 Hum yeah I'm not sure, I think we need more samples. 🤔");
 
+			// Special commands
 			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "randomize those words", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.RANDOMIZE_WORD);
 			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "randomize this", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.RANDOMIZE_CHAR);
 			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is dad", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISDAD);
 			pickMeChat.addAnswer(true, AnswerPicker.SPECIAL, "where is mom", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISMOM);
 			//Console.WriteLine("Triggers are : " + pickMeChat.getAnswers());
+	
+			// End the bot
+			pickMeChat.addAnswer(false, AnswerPicker.STARTS_WITH, "Death is the only answer.", "Duty prevails.", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, AnswerPicker.WITH_ADMIN_VERSION, "Only in death does duty end.");
+
 
 			string checkString = "";
 			int skipThem = 9;
 
 			if(pickMeChat.canWeGo()) {
-				for(;;) {
+				while(flagContinue) {
 					checkString = irc.readMessage();
 					//Console.WriteLine("\""+checkString+"\"");
 					if(checkString.Equals("PING: tmi.twitch.tv") || checkString.Equals("PING :tmi.twitch.tv")) {
@@ -97,13 +101,25 @@ namespace TwitchChatBot{
 								lastUse = lastRead;
 								irc.sendChatMessage(ifNotNullSend);
 							}
-							//Console.WriteLine(ifNotNullSend);
-							Console.SetCursorPosition(0, Console.CursorTop); //move cursor
-							Console.Write("Last read : {0}\t Messages read : {1}\t Messages answered : {1}\tLast answer : {3}", lastRead, pickMeChat.MessageRead, pickMeChat.MessageSent, lastUse);
+							if(ifNotNullSend == "Only in death does duty end.") {
+								flagContinue = false;
+								Console.ForegroundColor = ConsoleColor.DarkRed;
+								Console.SetCursorPosition(0, Console.CursorTop); //move cursor
+								Console.WriteLine("\n\n\n\n\n\n\n\n\nLast read : {0}\t Messages read : {1}\t Messages answered : {1}\tLast answer : {3}", lastRead, pickMeChat.MessageRead, pickMeChat.MessageSent, lastUse);
+								Console.WriteLine("It was my pleasure.");
+
+							} else {
+								//Console.WriteLine(ifNotNullSend);
+								Console.SetCursorPosition(0, Console.CursorTop); //move cursor
+								Console.Write("Last read : {0}\t Messages read : {1}\t Messages answered : {1}\tLast answer : {3}", lastRead, pickMeChat.MessageRead, pickMeChat.MessageSent, lastUse);
+							}
+
 						}
 					}
 				}
 			}
+			// Keep the console visible
+			Console.ReadLine();
 		}
 	}
 }
