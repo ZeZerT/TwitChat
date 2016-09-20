@@ -27,17 +27,22 @@ namespace TwitchChatBot {
 		public const int BOTH_STARTS_WITH_CALLER    = 25;
 		public const int BOTH_ENDS_WITH_CALLER      = 26;
 
-		public const int NONE						= 30;
-		public const int WHEREISMOM					= 31;
-		public const int WHEREISDAD					= 32;
-		public const int RANDOMIZE_CHAR				= 33;
-		public const int RANDOMIZE_WORD				= 34;
-		public const int CODEX						= 35;
+		public const int NONE                       = 30;
+		public const int WHEREISMOM                 = 31;
+		public const int WHEREISDAD                 = 32;
+		public const int RANDOMIZE_CHAR             = 33;
+		public const int RANDOMIZE_WORD             = 34;
+		public const int CODEX                      = 35;
+		public const int KILL						= 36;
+		public const int SPANK                      = 37;
+		public const int DEATH                      = 38;
+		public const int CASCADE                    = 39;
+		public const int CHAIN                      = 40;
 
 		public Answer() {
 			exists = false;
 		}
-		
+
 		public Answer(int type, string text, int withCaller, Boolean admin, Boolean ignorePrePostCom, string textAdmin, int special) {
 			last5 = new List<string>();
 			exists = true;
@@ -61,9 +66,10 @@ namespace TwitchChatBot {
 			UsedOn = DateTime.Now;
 			Count++;
 
-			string start_call = "@" + caller + ", ";
-			string end_call = ", " + caller + " .";
+			string start_call = "@" + caller;
+			string end_call = caller + " .";
 
+			AnswerPicker.debug("caller, admin, TextAdmin, TextPleb, special, Type", caller, admin, TextAdmin, TextPleb, special, Type);
 			switch(withCaller) {
 				case NONE_HAVE_CALLER:
 					return admin ? TextAdmin : TextPleb;
@@ -100,7 +106,15 @@ namespace TwitchChatBot {
 				case CODEX:
 					TextAdmin = TextPleb = readCodex(message);
 					break;
-					
+				case KILL:
+					TextAdmin = TextPleb = kill(message);
+					break;
+				case SPANK:
+					TextAdmin = TextPleb = spank(message);
+					break;
+				case DEATH:
+					TextAdmin = TextPleb = death(message);
+					break;
 				default:
 					TextAdmin = TextPleb = null;
 					break;
@@ -118,8 +132,8 @@ namespace TwitchChatBot {
 			return String.Join(", ", names.ToArray());
 		}
 
-		public void forceResend() {
-			force = true;
+		public void forceResend(Boolean forceMeMaybe) {
+			force = forceMeMaybe;
 		}
 		public Boolean canResend() {
 			if(Special == NONE) {
@@ -137,7 +151,7 @@ namespace TwitchChatBot {
 		private string Whereismom() {
 			return new string[] {
 				"She is right here GivePLZ https://www.twitch.tv/eloise_ailv TakeNRG",
-				"Who ? forsenE", 
+				"Who ? forsenE",
 				"!whereismom forsenPuke2",
 				"She is screaming in another stream for whatever reason forsenLewd"
 			}[new Random().Next(0, 4)];
@@ -166,7 +180,7 @@ namespace TwitchChatBot {
 			return String.Join(" ", unshuffled.Split(' ').OrderBy(r => x.Next()).ToArray());
 		}
 
-		private string readCodex(string startsWith =null) {
+		private string readCodex(string startsWith = null) {
 			Dictionary<int, string> answers = new Dictionary<int, string>();
 			int indice = 0;
 			try {
@@ -192,6 +206,28 @@ namespace TwitchChatBot {
 				Console.WriteLine(e.Message);
 				return "I had a problem, but my creator ZeZerT isn't responsible at all for he is mighty and skilled MrDestructoid";
 			}
+		}
+
+		static private string spank(string message) {
+			if(message.StartsWith("spank ") && message.Contains("please") && message.EndsWith("?"))
+				return " 👋 (_(_) " + message.Replace("spank ", "").Replace("please", "").Replace("?", "");
+			return null;
+		}
+		
+		static private string kill(string message) {
+			if(message.StartsWith("kill ") && message.Contains("please") && message.EndsWith("?"))
+				return " sends his regards MrDestructoid forsenKnife " + message.Replace("kill ", "").Replace("please", "").Replace("?", "");
+			return null;
+		}
+
+		static private string death(string message) {
+			if(message.ToLower().StartsWith("when will i die ")&& message.Contains("please") && message.EndsWith("?")) {
+				Random x = new Random();
+				int riggedText = x.Next(0, 6);
+				string[] time = {" seconds", " minutes", " hours", " days", " months", " years"};
+				return ", According to science, you should be dead in " + x.Next(1, (int)Math.Pow(10, 6-riggedText)+1) + time[riggedText] + ". MrDestructoid";
+			}
+			return null;
 		}
 
 		public Int32 Type {
@@ -239,5 +275,5 @@ namespace TwitchChatBot {
 			set { this.usedOn=value; }
 		}
 	}
-	
+
 }

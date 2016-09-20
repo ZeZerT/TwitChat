@@ -5,7 +5,8 @@ namespace TwitchChatBot {
 	class AnswerPicker {
 		// Dictionnary containing the trigger and the corresponding answer
 		private Dictionary<string, Answer> answers;
-
+		public const Boolean DEBUG = false;
+		
 		// Constants used for explicit use of the class
 		public const int STARTS_WITH				= 10;
 		public const int CONTAINS					= 11;
@@ -45,9 +46,9 @@ namespace TwitchChatBot {
 			this.saidHello = false;
 		}
 
-		public void addAnswer(Boolean usesMessage, int type, string trigger, string textPleb, int withCaller = Answer.NONE_HAVE_CALLER, Boolean ignorePrePostCom =WITH_PRE_POST_COM, Boolean admin =WITHOUT_ADMIN_VERSION, string textAdmin ="", int special = Answer.NONE) {
+		public void addAnswer(int type, string trigger, string textPleb, int withCaller = Answer.NONE_HAVE_CALLER, Boolean ignorePrePostCom =WITH_PRE_POST_COM, Boolean admin =WITHOUT_ADMIN_VERSION, string textAdmin ="", int special = Answer.NONE) {
 			Boolean keyFound = false;
-
+			trigger = trigger.ToLower();
 			// Searching for the key (the trigger), hoping we don't find it.
 			foreach(string key in answers.Keys) {
 				if(key == trigger) keyFound = true;
@@ -62,6 +63,7 @@ namespace TwitchChatBot {
 				Console.WriteLine("NOT Added : {0}, {1}, {2}, {3}, {4}, {5}, {6}", type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin);
 				noErrorWhileAdding = false;
 			}
+			debug("usesMessage, type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound", type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound);
 		}
 
 		public Boolean canWeGo() {
@@ -73,12 +75,10 @@ namespace TwitchChatBot {
 			if(text != null) {
 				// The message is then retrieved, as well as the caller and an enventual trigger that would have been detected. 
 				
-				string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2);
+				string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
 				string trigger = getTrigger(message);
 				string caller = getCaller(text);
 				incrementRead();
-				// Debug
-				//Console.WriteLine("message : \"{0}\"" + "trigger : \"{1}\"" + "caller : \"{2}\"" + " null or empty? {3}" , message, trigger, caller, (caller != null && trigger != null));
 
 				if(caller != null && trigger != null) {
 					// Do the current message match any of our answers ?
@@ -125,10 +125,10 @@ namespace TwitchChatBot {
 						}
 
 						if(response.isSpecial()) response.fillAnswers(message, caller, (caller==admin));
-
-						Boolean force = lastMessage != trigger; 
+						
 						lastMessage = trigger;
-						return tryToSend(relevant, response, caller, force);
+						debug("text, message, trigger, caller, response.Type, response.isSpecial()", text, message, trigger, caller, response.Type, response.isSpecial());
+						return tryToSend(relevant, response, caller, lastMessage != trigger);
 					}
 					return null;
 				}
@@ -146,11 +146,12 @@ namespace TwitchChatBot {
 				incrementSent();
 
 				// Allows to send the same message before the 30 required seconds if a different message was sent inbetween.
-				if(force)answers[lastMessage].forceResend(); 
+				answers[lastMessage].forceResend(force); 
 
 				Console.ForegroundColor = ConsoleColor.White; Console.Write("\n[" + DateTime.Now.ToString("hh:mm:ss:fff") + "] " + caller + " > ");
-				Console.ForegroundColor = ConsoleColor.DarkMagenta; Console.WriteLine("Answered " + answer);
+				Console.ForegroundColor = ConsoleColor.DarkMagenta; Console.WriteLine(answer);
 				Console.ForegroundColor = ConsoleColor.Gray;
+				debug("relevant, response, caller, force, answer", relevant, response, caller, force, answer);
 				return answer;
 			}
 			return null;
@@ -158,10 +159,15 @@ namespace TwitchChatBot {
 
 		// Self-explanatory
 		private string getTrigger(string message) {
+			message = message.ToLower();
+			string keyFound = null, lastKey = null;
 			foreach(string key in answers.Keys) {
-				if(message.Contains(key))	return key;
+				if(message.Contains(key)) {
+					if(lastKey != null) keyFound = answers[lastKey].Type > answers[key].Type ? lastKey : key;
+					else keyFound = key;
+				}
 			}
-			return null;
+			return keyFound;
 		}
 
 		// Self-explanatory
@@ -195,7 +201,7 @@ namespace TwitchChatBot {
 
 		// Self-explanatory, made for clarity.
 		private void incrementSent() {
-			MessageRead++;
+			MessageSent++;
 		}
 
 		// get & set
@@ -212,6 +218,17 @@ namespace TwitchChatBot {
 		public Int64 MessageRead {
 			get { return messageRead; }
 			set { this.messageRead=value; }
+		}
+
+		public static void debug(string argNames, params object[] args) {
+			if(DEBUG) {
+				string[] argName = argNames.Split(",".ToCharArray());
+				string showMe = "\nDEBUG -- ";
+				for(int i=0; i<argName.Length; i++)	showMe += argName[i]+ "=" + args[i];
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine(showMe);
+				Console.ForegroundColor = ConsoleColor.Gray;
+			}
 		}
 	}
 }
