@@ -3,7 +3,7 @@
 namespace TwitchChatBot {
 	class Program {
 		static string channel = "zezert", preCom = "", postCom = "?", admin = "zezert";
-		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:j0zyvyvajdg1rqrfl8b3qntyfxdhym");
+		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:");
 
 
 		static void Main(string[] args) {
