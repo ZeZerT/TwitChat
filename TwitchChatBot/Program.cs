@@ -2,7 +2,7 @@
 
 namespace TwitchChatBot {
 	class Program {
-		static string channel = "forsenlol", preCom = "", postCom = "?", admin = "zezert";
+		static string channel = "zezert", preCom = "", postCom = "?", admin = "zezert";
 		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:j0zyvyvajdg1rqrfl8b3qntyfxdhym");
 
 
@@ -14,7 +14,7 @@ namespace TwitchChatBot {
 			Boolean flagContinue = true;
 
 			irc.joinRoom(channel);
-			pickMeChat.helloMessage(irc, "That turns me on gachiGASM");
+			//pickMeChat.helloMessage(irc, "That turns me on gachiGASM");
 
 			// Admin / pleb differenciated commands
 			pickMeChat.addAnswer(AnswerPicker.STARTS_WITH, "slave", ", you are not my master MrDestructoid",

@@ -143,27 +143,32 @@ namespace TwitchChatBot {
 				// Set the "last used" variable to the current moment, print the answer and return it.
 				lastUse = DateTime.Now;
 				string answer = response.getAnswer(caller, (caller==admin));
-				incrementSent();
+				if(!String.IsNullOrEmpty(answer)){
+					incrementSent();
 
-				// Allows to send the same message before the 30 required seconds if a different message was sent inbetween.
-				answers[lastMessage].forceResend(force); 
+					// Allows to send the same message before the 30 required seconds if a different message was sent inbetween.
+					answers[lastMessage].forceResend(force);
 
-				Console.ForegroundColor = ConsoleColor.White; Console.Write("\n[" + DateTime.Now.ToString("hh:mm:ss:fff") + "] " + caller + " > ");
-				Console.ForegroundColor = ConsoleColor.DarkMagenta; Console.WriteLine(answer);
-				Console.ForegroundColor = ConsoleColor.Gray;
-				debug("relevant, response, caller, force, answer", relevant, response, caller, force, answer);
-				return answer;
+					Console.ForegroundColor = ConsoleColor.White; Console.Write("\n[" + DateTime.Now.ToString("hh:mm:ss:fff") + "] " + caller + " > ");
+					Console.ForegroundColor = ConsoleColor.DarkMagenta; Console.WriteLine(answer);
+					Console.ForegroundColor = ConsoleColor.Gray;
+					debug("relevant, response, caller, force, answer", relevant, response, caller, force, answer);
+					return answer;
+				}
+				return null;
 			}
 			return null;
 		}
+		//keyFound = ((message.Contains(key)) && (keyFound == null) && (answers[keyFound].Type<answers[key].Type) && (answers[keyFound].Type != answers[key].Type)) ? key : keyFound;
+
 
 		// Self-explanatory
 		private string getTrigger(string message) {
 			message = message.ToLower();
-			string keyFound = null, lastKey = null;
+			string keyFound = null;
 			foreach(string key in answers.Keys) {
 				if(message.Contains(key)) {
-					if(lastKey != null) keyFound = answers[lastKey].Type > answers[key].Type ? lastKey : key;
+					if(keyFound != null) keyFound = (answers[keyFound].Type < answers[key].Type) && (answers[keyFound].Type != answers[key].Type) ? key : keyFound;
 					else keyFound = key;
 				}
 			}

@@ -70,6 +70,7 @@ namespace TwitchChatBot {
 			string end_call = caller + " .";
 
 			AnswerPicker.debug("caller, admin, TextAdmin, TextPleb, special, Type", caller, admin, TextAdmin, TextPleb, special, Type);
+			if(!String.IsNullOrEmpty(TextAdmin+textPleb))
 			switch(withCaller) {
 				case NONE_HAVE_CALLER:
 					return admin ? TextAdmin : TextPleb;
@@ -87,6 +88,7 @@ namespace TwitchChatBot {
 					return admin ? TextAdmin + end_call : TextPleb + end_call;
 				default: return null;
 			}
+			return null;
 		}
 
 		public void fillAnswers(string message, string caller, Boolean admin) {
@@ -150,7 +152,7 @@ namespace TwitchChatBot {
 
 		private string Whereismom() {
 			return new string[] {
-				"She is right here GivePLZ https://www.twitch.tv/eloise_ailv TakeNRG",
+				"She is right here GivePLZ https://www.twitch.com/eloise_ailv TakeNRG",
 				"Who ? forsenE",
 				"!whereismom forsenPuke2",
 				"She is screaming in another stream for whatever reason forsenLewd"

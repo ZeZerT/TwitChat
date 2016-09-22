@@ -51,7 +51,10 @@ namespace TwitchChatBot {
 		}
 
         public string readMessage() {
-            return inputStream.ReadLine();
+			string ret = inputStream.ReadLine();
+			Console.WriteLine(ret);
+			return ret;
+			// return inputStream.ReadLine();
 		}
-    }
+	}
 }
