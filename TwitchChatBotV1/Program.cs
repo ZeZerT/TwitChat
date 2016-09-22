@@ -4,9 +4,9 @@ using System.Threading;
 
 namespace TwitchChatBot {
 	class Program {
-		//static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "ZeZerT", "oauth:psg8mp95q7gs34iurwvh3d2epo0tdn");
+		//static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "ZeZerT", "oauth:");
 		static string channel = "forsenlol", preCom = "", postCom = "?", admin = "zezert";
-		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:j0zyvyvajdg1rqrfl8b3qntyfxdhym");
+		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:");
 		//static string channel = "forsenlol";
 		static int commandsUsed = 0, relevant = 0;
 		static string lastCommand = "";
