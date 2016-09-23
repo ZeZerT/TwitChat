@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace TwitchChatBot {
 	class Answer {
@@ -38,7 +41,11 @@ namespace TwitchChatBot {
 		public const int DEATH                      = 38;
 		public const int CASCADE                    = 39;
 		public const int CHAIN                      = 40;
-
+		public const int CANCER                     = 41;
+		public const int CHROMOROME                 = 42;
+		public const int GACHI                      = 43;
+		public const int AFK						= 44;
+		
 		public Answer() {
 			exists = false;
 		}
@@ -90,8 +97,8 @@ namespace TwitchChatBot {
 			}
 			return null;
 		}
-
-		public void fillAnswers(string message, string caller, Boolean admin) {
+		
+		public void fillAnswers(string text, string caller, Boolean admin) {
 			switch(special) {
 				case WHEREISMOM:
 					TextAdmin = TextPleb = Whereismom();
@@ -100,22 +107,34 @@ namespace TwitchChatBot {
 					TextAdmin = TextPleb = Whereisdad();
 					break;
 				case RANDOMIZE_CHAR:
-					TextAdmin = TextPleb = ShuffleChar(message);
+					TextAdmin = TextPleb = ShuffleChar(text);
 					break;
 				case RANDOMIZE_WORD:
-					TextAdmin = TextPleb = ShuffleWord(message);
+					TextAdmin = TextPleb = ShuffleWord(text);
 					break;
 				case CODEX:
-					TextAdmin = TextPleb = readCodex(message);
+					TextAdmin = TextPleb = readCodex(text);
 					break;
 				case KILL:
-					TextAdmin = TextPleb = kill(message);
+					TextAdmin = TextPleb = kill(text);
 					break;
 				case SPANK:
-					TextAdmin = TextPleb = spank(message);
+					TextAdmin = TextPleb = spank(text);
 					break;
 				case DEATH:
-					TextAdmin = TextPleb = death(message);
+					TextAdmin = TextPleb = death(text);
+					break;
+				case CANCER:
+					TextAdmin = TextPleb = cancer(text);
+					break;
+				case CHROMOROME:
+					TextAdmin = TextPleb = chromosome(text);
+					break;
+				case GACHI:
+					TextAdmin = TextPleb = gachi();
+					break;
+				case AFK:
+					//TextAdmin = TextPleb = answeringMachine(text);
 					break;
 				default:
 					TextAdmin = TextPleb = null;
@@ -152,7 +171,7 @@ namespace TwitchChatBot {
 
 		private string Whereismom() {
 			return new string[] {
-				"She is right here GivePLZ https://www.twitch.com/eloise_ailv TakeNRG",
+				"I don't know where is eloise_ailv, sorry.",
 				"Who ? forsenE",
 				"!whereismom forsenPuke2",
 				"She is screaming in another stream for whatever reason forsenLewd"
@@ -201,7 +220,7 @@ namespace TwitchChatBot {
 					}
 				}
 				int y = new Random().Next(0, indice);
-				Console.Write("indice:"+y+"\ttext:"+answers[y]);
+				//Console.Write("indice:"+y+"\ttext:"+answers[y]);
 				return answers[y];
 			} catch(Exception e) {
 				Console.WriteLine("The file could not be read:");
@@ -210,26 +229,157 @@ namespace TwitchChatBot {
 			}
 		}
 
-		static private string spank(string message) {
+		static private string spank(string text) {
+			string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
 			if(message.StartsWith("spank ") && message.Contains("please") && message.EndsWith("?"))
 				return " 👋 (_(_) " + message.Replace("spank ", "").Replace("please", "").Replace("?", "");
 			return null;
 		}
 		
-		static private string kill(string message) {
+		static private string kill(string text) {
+			string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
 			if(message.StartsWith("kill ") && message.Contains("please") && message.EndsWith("?"))
 				return " sends his regards MrDestructoid forsenKnife " + message.Replace("kill ", "").Replace("please", "").Replace("?", "");
 			return null;
 		}
 
-		static private string death(string message) {
-			if(message.ToLower().StartsWith("when will i die ")&& message.Contains("please") && message.EndsWith("?")) {
+		static private string death(string text) {
+			string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
+			if(message.ToLower().StartsWith("when will i die please") && message.EndsWith("?")) {
 				Random x = new Random();
 				int riggedText = x.Next(0, 6);
 				string[] time = {" seconds", " minutes", " hours", " days", " months", " years"};
 				return ", According to science, you should be dead in " + x.Next(1, (int)Math.Pow(10, 6-riggedText)+1) + time[riggedText] + ". MrDestructoid";
 			}
 			return null;
+		}
+
+		private string cancer(string text) {
+			string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
+			if(message.StartsWith("cancer lottery") && message.EndsWith("?")) {
+				Dictionary<int, string> answers = new Dictionary<int, string>();
+				int indice = 0;
+				string winner = null;
+				Random x = new Random();
+
+				using(StreamReader sr = new StreamReader("Cancer.txt")) {
+					while(sr.Peek() >= 0)	answers.Add(indice++, sr.ReadLine());
+				}
+
+				using(WebClient wc = new WebClient()) {
+					dynamic jsonRaw = JsonConvert.DeserializeObject(wc.DownloadString("https://tmi.twitch.tv/group/user/"+Program.channel+"/chatters"));
+					string[] viewerArray = jsonRaw.chatters.viewers.ToString().Split(",".ToCharArray());
+					winner = viewerArray[x.Next(0, viewerArray.Length)].Replace("\r", "").Replace("\n", "").Replace("\"", "").Replace("[", "").Replace("]", "");
+				}
+
+				return winner + ", You now have a "+ answers[x.Next(0, indice)]+"! "+ congrats();
+			}
+			return null;
+		}
+
+		private string chromosome(string text) {
+			string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
+			if(message.StartsWith("chromosome lottery") && message.EndsWith("?")) {
+				string winner = null;
+				Random x = new Random();
+				
+				using(WebClient wc = new WebClient()) {
+					dynamic jsonRaw = JsonConvert.DeserializeObject(wc.DownloadString("https://tmi.twitch.tv/group/user/"+Program.channel+"/chatters"));
+					string[] viewerArray = jsonRaw.chatters.viewers.ToString().Split(",".ToCharArray());
+					winner = viewerArray[x.Next(0, viewerArray.Length)].Replace("\r", "").Replace("\n", "").Replace("\"", "").Replace("[", "").Replace("]", "");
+				}
+
+				int extra = x.Next(-10, 10);
+				string mol = extra<0 ? " less" : " more";
+				return winner + ", You now have " + Math.Abs(extra) + mol +" chromosomes than average :) :)";
+			}
+			return null;
+		}
+		
+		private string gachi() {
+			return new string[] {
+				", http://imgur.com/Lo35Wpj "+ gachiEmote(),
+				", http://imgur.com/a/ORH3Y "+ gachiEmote(),
+				", http://imgur.com/q46GV6a "+ gachiEmote(),
+				", http://imgur.com/lvpQ8qK "+ gachiEmote(),
+				", http://imgur.com/mKMxWtL "+ gachiEmote(),
+				", http://imgur.com/qoomcwL "+ gachiEmote(),
+				", http://imgur.com/E1bP7wc "+ gachiEmote(),
+				", http://imgur.com/hblBERk "+ gachiEmote(),
+				", http://imgur.com/UpIW00T "+ gachiEmote(),
+				", http://imgur.com/3YGbyAv "+ gachiEmote(),
+				", http://imgur.com/ArNXBtq "+ gachiEmote(),
+				", http://imgur.com/NKfhvKi "+ gachiEmote(),
+				", http://imgur.com/8225haP "+ gachiEmote(),
+				", http://imgur.com/pSIZB6I "+ gachiEmote(),
+				", http://imgur.com/5xCwV4s "+ gachiEmote()
+			}[new Random().Next(0, 16)];
+		}
+		private string gachiEmote() {
+			return new string[] {
+				" gachiBASS ",
+				" gachiGASM ",
+				" gachiGold ",
+				" Jebaited "
+			}[new Random().Next(0, 4)];
+		}
+
+		private string congrats() {
+			return new string[] {
+				"Congratulations !",
+				"Awesome ! :o",
+				"I'm proud of you :)",
+				"That's what I like in you !",
+				"You'll die alone you little shit forsenE",
+				"Damn that's no luck.. LUL"
+			}[new Random().Next(0, 6)];
+		}
+
+		// trigger : answering machine for me please ?
+		// trigger : answering machine for ZeZerT
+		// trigger : answering machine for GaZaTu
+
+		// when : bitch : ZeZerT, fuck off
+		// say : bitch, ZeZerT is afk right now, i'll notice you when he'll be back
+
+		// when : Jabroni : ZeZerT, fuck off
+		// say : Jabroni, ZeZerT is afk right now, i'll notice you when he'll be back
+
+		// when back : @Jabroni, @bitch, ZeZerT is back !
+
+		/*private static Dictionary<string, string> afks;
+
+		private string answeringMachine(string text) {
+			string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
+			string caller = AnswerPicker.getCaller(message);
+			if(!String.IsNullOrEmpty(message) && !String.IsNullOrEmpty(caller))
+			if(message.StartsWith("answering machine for") && message.Contains("please") && message.EndsWith("?")) {
+				afks.Add(caller, "");
+				return caller+" is now afk.";
+			}
+			return null;
+		}
+
+		static public string heAfkBro(string text) {
+			string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
+			string caller = AnswerPicker.getCaller(message);
+			if(!String.IsNullOrEmpty(message) && !String.IsNullOrEmpty(caller)) {
+				foreach(string afk in afks.Keys) {
+					if(message.Contains(afk)) {
+						afks[afk] += caller+", ";
+						return caller +", " + afk + " is afk right now, maybe you should whisper his or wait untill he's back. MrDestructoid";
+					}
+					if(caller.Equals(afk)) {
+						string returnMe = caller +", welcome back.";
+					}
+				}
+			}
+			//Console.WriteLine("he afk bro");
+			return null;
+		}*/
+
+		public override string ToString() {
+			return "type="+Type+" TextPleb="+TextPleb+" withCaller="+WithCaller+" admin="+Admin+" ignorePrePostCom="+IgnorePrePostCom+" textAdmin="+TextAdmin+" special="+Special;
 		}
 
 		public Int32 Type {

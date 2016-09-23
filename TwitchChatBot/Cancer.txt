@@ -1,0 +1,118 @@
+﻿AIDS-Related Lymphoma
+Primary Central Nervous System Lymphoma
+Kaposi Sarcoma
+Breast Cancer
+Anal Cancer
+Appendix Cancer
+Bile Duct Cancer
+Carcinoid Tumor
+Gastrointestinal
+Colon Cancer
+Esophageal Cancer
+Gallbladder Cancer
+Gastric Cancer
+Gastrointestinal Stromal Tumor
+Islet Cell Tumor
+Liver Cancer
+Pancreatic Cancer
+Rectal Cancer
+Intestine Cancer
+Stomach (Gastric) Cancer
+Adrenocortical Carcinoma
+Carcinoid Tumor
+Islet Cell Tumor
+Pancreatic Neuroendocrine Tumor
+Merkel Cell Carcinoma
+Neuroendocrine Tumor
+Parathyroid Cancer
+Pheochromocytoma
+Pituitary Tumor
+Thyroid Cancer
+Melanoma
+Retinoblastoma
+Bladder Cancer
+Kidney Cancer
+Penile Cancer
+Prostate Cancer
+Renal Pelvis and Ureter Cancer
+Transitional Cell
+Testicular Cancer
+Urethral Cancer
+Wilms Tumor and Other Childhood Kidney Tumor
+Central Nervous System Tumor
+Extragonadal Germ Cell Tumor
+Ovarian Germ Cell Tumor
+Testicular Cancer
+Cervical Cancer
+Endometrial Cancer
+Fallopian Tube Cancer
+Gestational Trophoblastic Tumor
+Ovarian Epithelial Cancer
+Ovarian Germ Cell Tumor
+Ovarian Low Malignant Potential Tumor
+Primary Peritoneal Cancer
+Uterine Sarcoma
+Vaginal Cancer
+Vulvar Cancer
+Hypopharyngeal Cancer
+Laryngeal Cancer
+Lip and Oral Cavity Cancer
+Metastatic Squamous Neck Cancer with Occult Primary
+Mouth Cancer
+Nasopharyngeal Cancer
+Oral Cavity Cancer
+Oropharyngeal Cancer
+Paranasal Sinus and Nasal Cavity Cancer
+Parathyroid Cancer
+Pharyngeal Cancer
+Salivary Gland Cancer
+Throat Cancer
+Thyroid Cancer
+Leukemia
+Acute Lymphoblastic Leukemia
+Acute Myeloid Leukemia
+Chronic Lymphocytic Leukemia
+Chronic Myelogenous Leukemia
+Hairy Cell Leukemia
+Lymphoma
+Cutaneous T-Cell Lymphoma
+Hodgkin Lymphoma
+Mycosis Fungoides
+Non-Hodgkin Lymphoma
+Primary Central Nervous System Lymphoma
+Sézary Syndrome
+T-Cell Lymphoma
+Cutaneous
+Waldenström Macroglobulinemia
+Chronic Myeloproliferative Neoplasms
+Langerhans Cell Histiocytosis
+Multiple Myeloma/Plasma Cell Neoplasm
+Myelodysplastic Syndromes
+Myelodysplastic/Myeloproliferative Neoplasms
+Bone Cancer
+Ewing Sarcoma
+Osteosarcoma and Malignant Fibrous Histiocytoma of Bone
+Rhabdomyosarcoma
+Soft Tissue Sarcoma
+Brain Tumor
+Astrocytomas
+Brain and Spinal Cord Tumor
+Brain Stem Glioma
+Central Nervous System Atypical Teratoid/Rhabdoid Tumor
+Central Nervous System Embryonal Tumor
+Central Nervous System Germ Cell Tumor
+Craniopharyngioma
+Ependymoma
+Neuroblastoma
+Pituitary Tumor
+Primary Central Nervous System (CNS) Lymphoma
+Lung Cancer
+Malignant Mesothelioma
+Thymoma and Thymic Carcinoma
+Cutaneous T-Cell Lymphoma
+Kaposi Sarcoma
+Melanoma
+Merkel Cell Carcinoma
+Skin Cancer
+T-Cell Lymphoma, Cutaneous
+Carcinoma of Unknown Primary

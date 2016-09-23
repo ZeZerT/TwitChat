@@ -106,25 +106,29 @@ namespace TwitchChatBot {
 								relevant = message.EndsWith(trigger);
 								break;
 							case STARTS_CONTAINS:
-								triggers = trigger.Split("--".ToCharArray());
+								triggers = trigger.Split("¤".ToCharArray());
 								relevant = (message.StartsWith(triggers[0]) && message.Contains(triggers[1]));
 								break;
 							case CONTAINS_ENDS:
-								triggers = trigger.Split("--".ToCharArray());
+								triggers = trigger.Split("¤".ToCharArray());
 								relevant = (message.Contains(triggers[0]) && message.EndsWith(triggers[1]));
+								Console.WriteLine("CONTAINS_END, relevant : " + relevant + " triggers : ");
+								foreach(string printme in triggers) {
+									Console.WriteLine(printme);
+								}
 								break;
 							case STARTS_ENDS:
-								triggers = trigger.Split("--".ToCharArray());
+								triggers = trigger.Split("¤".ToCharArray());
 								relevant = (message.StartsWith(triggers[0]) && message.EndsWith(triggers[1]));
 								break;
 							case STARTS_CONTAINS_ENDS:
-								triggers = trigger.Split("--".ToCharArray());
+								triggers = trigger.Split("¤".ToCharArray());
 								relevant = (message.StartsWith(triggers[0]) &&message.Contains(triggers[1]) && message.EndsWith(triggers[2]));
 								break;
 							default: return null;
 						}
 
-						if(response.isSpecial()) response.fillAnswers(message, caller, (caller==admin));
+						if(response.isSpecial()) response.fillAnswers(text, caller, (caller==admin));
 						
 						lastMessage = trigger;
 						debug("text, message, trigger, caller, response.Type, response.isSpecial()", text, message, trigger, caller, response.Type, response.isSpecial());
@@ -176,7 +180,7 @@ namespace TwitchChatBot {
 		}
 
 		// Self-explanatory
-		private string getCaller(string message) {
+		public static string getCaller(string message) {
 			if(message.Contains("!")) return message.Substring(1, message.IndexOf("!") - 1);
 			else return null;
 		}

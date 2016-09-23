@@ -2,8 +2,8 @@
 
 namespace TwitchChatBot {
 	class Program {
-		static string channel = "zezert", preCom = "", postCom = "?", admin = "zezert";
-		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:");
+		public static string channel = "zezert", preCom = "", postCom = "?", admin = "zezert";
+		static IrcClient irc = new IrcClient("irc.twitch.tv", 6667, "MrZezertoid", "oauth:j0zyvyvajdg1rqrfl8b3qntyfxdhym");
 
 
 		static void Main(string[] args) {
@@ -14,7 +14,7 @@ namespace TwitchChatBot {
 			Boolean flagContinue = true;
 
 			irc.joinRoom(channel);
-			//pickMeChat.helloMessage(irc, "That turns me on gachiGASM");
+			pickMeChat.helloMessage(irc, "That turns me on gachiGASM");
 
 			// Admin / pleb differenciated commands
 			pickMeChat.addAnswer(AnswerPicker.STARTS_WITH, "slave", ", you are not my master MrDestructoid",
@@ -69,9 +69,9 @@ namespace TwitchChatBot {
 			pickMeChat.addAnswer(AnswerPicker.STARTS_WITH, "!offlinechat", "/me JAVLA FITTA KUK HELVETE", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(AnswerPicker.STARTS_WITH, "!enation", "/me DO NATION 👌💰", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(AnswerPicker.STARTS_WITH, "!genji", "There is no way I add that weeb overwatch emote forsenSWA", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
-			pickMeChat.addAnswer(AnswerPicker.CONTAINS_ENDS, "mrzezertoid--?", ", Idk kev forsenE", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
+			pickMeChat.addAnswer(AnswerPicker.CONTAINS_ENDS, "mrzezertoid¤?", ", Idk kev forsenE", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
 			pickMeChat.addAnswer(AnswerPicker.CONTAINS, "im not fucking lying !", ", YES YOU ARE BabyRage", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM);
-			pickMeChat.addAnswer(AnswerPicker.STARTS_ENDS, "?--?", "🤔 Hum yeah I'm not sure, I think we need more samples. 🤔");
+			pickMeChat.addAnswer(AnswerPicker.STARTS_ENDS, "?¤?", "🤔 Hum yeah I'm not sure, I think we need more samples. 🤔");
 
 			// Special commands
 			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "spank", "", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.SPANK);
@@ -81,11 +81,19 @@ namespace TwitchChatBot {
 			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "where is dad", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISDAD);
 			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "where is mom", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.WHEREISMOM);
 			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "thought for the day", "", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.CODEX);
-			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "When will I die", "", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.DEATH);
+			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "When will I die please", "", Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, "", Answer.DEATH);
+
+			// Lotteries
+			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "cancer lottery", channel, Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, channel, Answer.CANCER);
+			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "chromosome lottery", channel, Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, channel, Answer.CHROMOROME);
+			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "gachi lottery", channel, Answer.BOTH_STARTS_WITH_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, channel, Answer.GACHI);
+
+			pickMeChat.addAnswer(AnswerPicker.SPECIAL, "answering machine for", channel, Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, false, channel, Answer.AFK);
+
 			//Console.WriteLine("Triggers are : " + pickMeChat.getAnswers());
 
 			// End the bot
-			pickMeChat.addAnswer(AnswerPicker.STARTS_WITH, "Death is the only answer.", "Duty prevails.", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, AnswerPicker.WITH_ADMIN_VERSION, "Only in death does duty end.");
+			//pickMeChat.addAnswer(AnswerPicker.STARTS_WITH, "Death is the only answer.", "Duty prevails.", Answer.NONE_HAVE_CALLER, AnswerPicker.WITHOUT_PRE_POST_COM, AnswerPicker.WITH_ADMIN_VERSION, "Only in death does duty end.");
 
 			string checkString = "";
 			int skipThem = 9;
@@ -94,37 +102,34 @@ namespace TwitchChatBot {
 				while(flagContinue) {
 					checkString = irc.readMessage();
 					//Console.WriteLine("\nCheck this string : \""+checkString+"\"");
-					if(checkString.Equals("PING: tmi.twitch.tv") || checkString.Equals("PING :tmi.twitch.tv")) {
-						irc.refresh(false);
-						skipThem = 4;
-					} else {
+					if(!String.IsNullOrEmpty(checkString)) {
 						if(skipThem >0) skipThem--;
 						else {
 							ifNotNullSend = pickMeChat.pickAnswer(checkString);
 							lastRead = DateTime.Now.ToString("hh:mm:ss:fff");
-							if(ifNotNullSend != null) {
+							//Answer.heAfkBro(checkString);
+							if(!String.IsNullOrEmpty(ifNotNullSend)) {
 								lastUse = lastRead;
 								irc.sendChatMessage(ifNotNullSend);
-							}
-							if(ifNotNullSend == "Only in death does duty end.") {
-								flagContinue = false;
-								Console.ForegroundColor = ConsoleColor.DarkRed;
-								Console.SetCursorPosition(0, Console.CursorTop); //move cursor
-								Console.WriteLine("\n\n\n\n\n\n\n\n\nLast read : {0}\t Messages read : {1}\t Messages answered : {2}\tLast answer : {3}", lastRead, pickMeChat.MessageRead, pickMeChat.MessageSent, lastUse);
-								Console.WriteLine("It was my pleasure.");
-
+								if(ifNotNullSend.Equals("Only in death does duty end.")) {
+									flagContinue = false;
+									Console.ForegroundColor = ConsoleColor.DarkRed;
+									Console.SetCursorPosition(0, Console.CursorTop); //move cursor
+									Console.WriteLine("\n\n\n\n\n\n\n\n\nLast read : {0}\t Messages read : {1}\t Messages answered : {2}\tLast answer : {3}", lastRead, pickMeChat.MessageRead, pickMeChat.MessageSent, lastUse);
+									Console.WriteLine("It was my pleasure.");
+								}
 							} else {
 								//Console.WriteLine(ifNotNullSend);
 								Console.SetCursorPosition(0, Console.CursorTop); //move cursor
 								Console.Write("Last read : {0}\t Messages read : {1}\t Messages answered : {2}\tLast answer : {3}", lastRead, pickMeChat.MessageRead, pickMeChat.MessageSent, lastUse);
 							}
-
+						
 						}
 					}
 					AnswerPicker.debug("checkString, flagContinue, skipThem, ifNotNullSend", checkString, flagContinue, skipThem, ifNotNullSend);
 				}
 			}
-			// Keep the console visible
+			// Keep the console visible at the end
 			Console.ReadLine();
 		}
 	}

@@ -42,7 +42,6 @@ namespace TwitchChatBot {
 			} catch(Exception e) {
 				Console.ForegroundColor = ConsoleColor.DarkRed;
 				Console.WriteLine("Caught an error : " + e);
-				Console.WriteLine("Due to : Thread.Sleep(2000);");
 			}
 		}
 
@@ -51,10 +50,14 @@ namespace TwitchChatBot {
 		}
 
         public string readMessage() {
-			string ret = inputStream.ReadLine();
-			Console.WriteLine(ret);
-			return ret;
-			// return inputStream.ReadLine();
+			string sendme = inputStream.ReadLine();
+			if(sendme.Equals("PING: tmi.twitch.tv") || sendme.Equals("PING :tmi.twitch.tv"))
+				sendIrcMessage("PONG :tmi.twitch.tv");
+			return sendme;
+		}
+
+		public string getChannel() {
+			return channel;
 		}
 	}
 }
