@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchChatBotV1", "TwitchCh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApplication1", "WindowsFormsApplication1\WindowsFormsApplication1.csproj", "{901CB1D1-9156-444B-8F54-D3D285176096}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchChatBotV3", "TwitchChatBotV3\TwitchChatBotV3.csproj", "{8615CD77-F3CC-42B6-961B-1B6E089FF9D9}"
+EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -30,6 +32,10 @@ Global
 		{901CB1D1-9156-444B-8F54-D3D285176096}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{901CB1D1-9156-444B-8F54-D3D285176096}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{901CB1D1-9156-444B-8F54-D3D285176096}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8615CD77-F3CC-42B6-961B-1B6E089FF9D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8615CD77-F3CC-42B6-961B-1B6E089FF9D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8615CD77-F3CC-42B6-961B-1B6E089FF9D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8615CD77-F3CC-42B6-961B-1B6E089FF9D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

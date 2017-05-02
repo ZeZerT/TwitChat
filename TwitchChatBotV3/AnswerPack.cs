@@ -1,24 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TwitchChatBot {
-	class AnswerPicker {
+namespace TwitchChatBotV3 {
+	class AnswerPack {
 		// Dictionnary containing the trigger and the corresponding answer
 		private Dictionary<string, Answer> answers;
-		public const Boolean DEBUG = false;
-		
-		// Constants used for explicit use of the class
-		public const int STARTS_WITH				= 10;
-		public const int CONTAINS					= 11;
-		public const int ENDS_WITH					= 12;
-		public const int STARTS_CONTAINS			= 13;
-		public const int CONTAINS_ENDS				= 14;
-		public const int STARTS_ENDS				= 15;
-		public const int STARTS_CONTAINS_ENDS		= 16;
-		public const int SPECIAL			        = 17;
 
-		public const Boolean WITHOUT_PRE_POST_COM    = true;
-		public const Boolean WITH_PRE_POST_COM      = false;
+		// Constants used for explicit use of the class
+		public const Boolean WITH_SPECIAL     = true;
+		public const Boolean WITHOUT_SPECIAL    = false;
+
+		public const Boolean WITH_PRE_POST_COM      =true;
+		public const Boolean WITHOUT_PRE_POST_COM    = false;
 
 		public const Boolean WITH_ADMIN_VERSION     = true;
 		public const Boolean WITHOUT_ADMIN_VERSION  = false;
@@ -27,7 +20,7 @@ namespace TwitchChatBot {
 		private static String lastMessage;
 		private long messageSent;
 		private long messageRead;
-
+		
 		private string preCom;
 		private string postCom;
 		private string admin;
@@ -36,7 +29,7 @@ namespace TwitchChatBot {
 
 		private DateTime lastUse;
 
-		public AnswerPicker(string precom, string postcom, string admin) {
+		public AnswerPack(string precom, string postcom, string admin) {
 			this.answers = new Dictionary<string, Answer>();
 			this.noErrorWhileAdding = true;
 			this.lastUse = DateTime.Now;
@@ -46,7 +39,7 @@ namespace TwitchChatBot {
 			this.saidHello = false;
 		}
 
-		public void AddAnswer(int type, string trigger, string textPleb, int withCaller = Answer.NONE_HAVE_CALLER, Boolean ignorePrePostCom =WITH_PRE_POST_COM, Boolean admin =WITHOUT_ADMIN_VERSION, string textAdmin ="", int special = Answer.NONE) {
+		public void addAnswer(int type, string trigger, string message, int withCaller = Answer.NONE_HAVE_CALLER, Boolean admin = WITHOUT_ADMIN_VERSION, Boolean ignorePrePostCom = WITH_PRE_POST_COM) {
 			Boolean keyFound = false;
 			trigger = trigger.ToLower();
 			// Searching for the key (the trigger), hoping we don't find it.
@@ -58,28 +51,47 @@ namespace TwitchChatBot {
 				//Console.WriteLine(trigger);
 				answers.Add(trigger, new Answer(type, textPleb, withCaller, admin, ignorePrePostCom, textAdmin, special));
 				//Console.WriteLine("Added : {0}, {1}, {2}, {3}, {4}, {5}, {6}", type, trigger, text, withCaller, ignorePrePostCom, admin, textAdmin);
-			}else {
+			} else {
 				// An error occured, we log it and block the answer retrieval. Adding to the answers may be blocked if we check all but the first addAnswer call by the blocker.
 				Console.WriteLine("NOT Added : {0}, {1}, {2}, {3}, {4}, {5}, {6}", type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin);
 				noErrorWhileAdding = false;
 			}
-			Debug("usesMessage, type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound", type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound);
+			debug("usesMessage, type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound", type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound);
 		}
 
-		public Boolean CanWeGo() {
+		public void addSpecialAnswer(int type, string trigger, string textPleb, int withCaller = Answer.NONE_HAVE_CALLER, Boolean ignorePrePostCom = WITH_PRE_POST_COM, Boolean admin = WITHOUT_ADMIN_VERSION, string textAdmin = "", int special = Answer.NONE) {
+			Boolean keyFound = false;
+			trigger = trigger.ToLower();
+			// Searching for the key (the trigger), hoping we don't find it.
+			foreach(string key in answers.Keys) {
+				if(key == trigger) keyFound = true;
+			}
+			// If it wasn't found, we can add the trigger and it's answer
+			if(!keyFound) {
+				//Console.WriteLine(trigger);
+				answers.Add(trigger, new Answer(type, textPleb, withCaller, admin, ignorePrePostCom, textAdmin, special));
+				//Console.WriteLine("Added : {0}, {1}, {2}, {3}, {4}, {5}, {6}", type, trigger, text, withCaller, ignorePrePostCom, admin, textAdmin);
+			} else {
+				// An error occured, we log it and block the answer retrieval. Adding to the answers may be blocked if we check all but the first addAnswer call by the blocker.
+				Console.WriteLine("NOT Added : {0}, {1}, {2}, {3}, {4}, {5}, {6}", type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin);
+				noErrorWhileAdding = false;
+			}
+			debug("usesMessage, type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound", type, trigger, textPleb, withCaller, ignorePrePostCom, admin, textAdmin, special, keyFound);
+		}
+		public Boolean canWeGo() {
 			return noErrorWhileAdding;
 		}
 
-		public string PickAnswer(string text) {
+		public string pickAnswer(string text) {
 			// The text is the complete message, including headers as who sent the message, to which channel, and of course the message itself.
 			if(text != null) {
 				// The message is then retrieved, as well as the caller and an enventual trigger that would have been detected. 
 
 
 				string message = text.Substring(text.IndexOf(" :")+2, text.Length - text.IndexOf(" :")-2).ToLower();
-				string trigger = GetTrigger(message);
-				string caller = GetCaller(text);
-				IncrementRead();
+				string trigger = getTrigger(message);
+				string caller = getCaller(text);
+				incrementRead();
 				if(caller != null && trigger != null) {
 					// Do the current message match any of our answers ?
 					if(Answer.Exists(answers[trigger])) {
@@ -87,7 +99,7 @@ namespace TwitchChatBot {
 
 						// We found one of our triggers in the message, but does it really match out expections ? (is it relevant)
 						Boolean relevant = false;
-						
+
 						Answer response = answers[trigger];
 						// Array containing the different parts of a trigger, if there may be several.
 						string[] triggers = null;
@@ -128,11 +140,11 @@ namespace TwitchChatBot {
 							default: return null;
 						}
 
-						if(response.IsSpecial()) response.FillAnswers(text, caller, (caller==admin));
-						
+						if(response.isSpecial()) response.fillAnswers(text, caller, (caller==admin));
+
 						lastMessage = trigger;
-						Debug("text, message, trigger, caller, response.Type, response.isSpecial()", text, message, trigger, caller, response.Type, response.IsSpecial());
-						return TryToSend(relevant, response, caller, lastMessage != trigger);
+						debug("text, message, trigger, caller, response.Type, response.isSpecial()", text, message, trigger, caller, response.Type, response.isSpecial());
+						return tryToSend(relevant, response, caller, lastMessage != trigger);
 					}
 					return null;
 				}
@@ -140,28 +152,23 @@ namespace TwitchChatBot {
 			}
 			return null;
 		}
-        /*
-        // Self-explanatory, but never used.
-        public Boolean getRandomAnswer(string trigger) {
-            return answers.Remove(trigger);
-        }
-        */
-        private string TryToSend(Boolean relevant, Answer response, string caller, Boolean force) {
+
+		private string tryToSend(Boolean relevant, Answer response, string caller, Boolean force) {
 			// If so, then we check if we can send a message (30s cooldown for same messages, 1.2s for different ones (values given by Twitch chat rules))
-			if(relevant /*&& response.CanResend() */&& DateTime.Now.Subtract(lastUse).TotalSeconds > 1.51) {
+			if(relevant && response.canResend() && DateTime.Now.Subtract(lastUse).TotalSeconds > 2) {
 				// Set the "last used" variable to the current moment, print the answer and return it.
 				lastUse = DateTime.Now;
-				string answer = response.GetAnswer(caller, (caller==admin));
-				if(!String.IsNullOrEmpty(answer)){
-					IncrementSent();
+				string answer = response.getAnswer(caller, (caller==admin));
+				if(!String.IsNullOrEmpty(answer)) {
+					incrementSent();
 
 					// Allows to send the same message before the 30 required seconds if a different message was sent inbetween.
-					answers[lastMessage].ForceResend(force);
+					answers[lastMessage].forceResend(force);
 
 					Console.ForegroundColor = ConsoleColor.White; Console.Write("\n[" + DateTime.Now.ToString("hh:mm:ss:fff") + "] " + caller + " > ");
 					Console.ForegroundColor = ConsoleColor.DarkMagenta; Console.WriteLine(answer);
 					Console.ForegroundColor = ConsoleColor.Gray;
-					Debug("relevant, response, caller, force, answer", relevant, response, caller, force, answer);
+					debug("relevant, response, caller, force, answer", relevant, response, caller, force, answer);
 					return answer;
 				}
 				return null;
@@ -172,7 +179,7 @@ namespace TwitchChatBot {
 
 
 		// Self-explanatory
-		private string GetTrigger(string message) {
+		private string getTrigger(string message) {
 			message = message.ToLower();
 			string keyFound = null;
 			foreach(string key in answers.Keys) {
@@ -185,36 +192,36 @@ namespace TwitchChatBot {
 		}
 
 		// Self-explanatory
-		public static string GetCaller(string message) {
+		public static string getCaller(string message) {
 			if(message.Contains("!")) return message.Substring(1, message.IndexOf("!") - 1);
 			else return null;
 		}
 
 		// The first message the bot says when he's turned on. Because he is a polite and nice guy. He only says that once.
-		public void HelloMessage(IrcClient irc, string message) {
+		public void helloMessage(IrcClient irc, string message) {
 			if(!saidHello) {
-				irc.SendChatMessage(message);
+				irc.sendChatMessage(message);
 				saidHello = !saidHello;
 			}
 		}
 
 		// Self-explanatory, but never used.
-		public Boolean RemoveAnswer(string trigger) {
+		public Boolean removeAnswer(string trigger) {
 			return answers.Remove(trigger);
 		}
 
 		// Self-explanatory, but never used.
-		private void RemoveAnswers() {
+		private void removeAnswers() {
 			answers.Clear();
 		}
 
 		// Self-explanatory, made for clarity.
-		private void IncrementRead() {
+		private void incrementRead() {
 			MessageRead++;
 		}
 
 		// Self-explanatory, made for clarity.
-		private void IncrementSent() {
+		private void incrementSent() {
 			MessageSent++;
 		}
 
@@ -234,18 +241,16 @@ namespace TwitchChatBot {
 			set { this.messageRead=value; }
 		}
 
-		#pragma warning disable 0162
-		public static void Debug(string argNames, params object[] args) {
+		public static void debug(string argNames, params object[] args) {
 			if(DEBUG) {
 				string[] argName = argNames.Split(",".ToCharArray());
 				string showMe = "\nDEBUG -- ";
-				for(int i=0; i<argName.Length; i++)	showMe += argName[i]+ "=" + args[i];
+				for(int i = 0; i<argName.Length; i++) showMe += argName[i]+ "=" + args[i];
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine(showMe);
 				Console.ForegroundColor = ConsoleColor.Gray;
 			}
 		}
-		#pragma warning restore 0162
 	}
 }
 
